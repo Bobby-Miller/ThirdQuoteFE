@@ -140,6 +140,7 @@ import sourceData from './composables/sourceData'
 import appHooks from './composables/appHooks'
 import componentComps from './composables/componentComputations'
 import costCalcs from './composables/costCalculations'
+import prettyPrint from './composables/prettyPrint'
 import { computed, watchEffect } from 'vue'
 
 export default {
@@ -225,7 +226,18 @@ export default {
       prettyDeskSell,
       prettyAccSell,
       prettyTotalSell, 
-    }
+    } = prettyPrint(
+      baseSell,
+      extLaborSell,
+      extHWSell,
+      adderSell,
+      hmiSellExtra,
+      hmiCoverSellExtra,
+      graceportSellExtra, 
+      deskSellExtra,
+      accessoriesSellExtra,
+      totalSell,
+    )
 
     return { 
       compQty, compMax, termBlock, burner, airSys, flow, controlSys, 

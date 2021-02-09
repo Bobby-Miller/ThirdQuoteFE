@@ -64,3 +64,4 @@ const prettyPrint = (
         prettyTotalSell,       
     }
 }
+export default prettyPrint
