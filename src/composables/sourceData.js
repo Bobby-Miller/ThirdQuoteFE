@@ -22,6 +22,13 @@ const sourceData = () => {
       tcIn: 0,
     })
 
+    const basicBaseCompQty = ref({
+      safeDIn: 3, 
+      safeDOut: 1, 
+      dIn: 0, 
+      tb: 0,
+    })
+
     const baseCompQty = ref({
       relIn: 0, 
       relOut: 0, 
@@ -116,8 +123,11 @@ const sourceData = () => {
 
     const completeHWCost = 14500
     const completeHWSell = 17000
+    const basicHWSell = 12800
     
-    const completeHRRate = ref({ pm: 110, ee: 110, cad: 85, elect: 70, admin: 60, panel: 65, travel: 85 })
+    const basicHRBase = ref({ pm: 12, ee: 40, cad: 40, elect: 0, admin: 8, panel: 40, travel: 0 })
+    const basicHRCalc = ref({ pm: 0, ee: 0, cad: 0, elect: 0, admin: 0, panel: 0, travel: 0 })
+    const completeHRRate = ref({ pm: 110, ee: 105, cad: 85, elect: 70, admin: 60, panel: 65, travel: 85 })
     const completeHRBase = ref({ pm: 16, ee: 80, cad: 64, elect: 0, admin: 12, panel: 64, travel: 0 })
     const completeHRCalc = ref({ pm: 0, ee: 0, cad: 0, elect: 0, admin: 0, panel: 0, travel: 0 })
     const componentCost = ref({
@@ -146,11 +156,12 @@ const sourceData = () => {
       anaOut: 1581.80,
       flSwitch: 422.83,
       anaFlSwitch: 6200,
-      hmi7Inch: 1560,
-      hmi12Inch: 3360,
-      hmi15Inch: 5480,
-      graceport: 800,
-      desk: 1200,
+      hmi4Inch: 1000,
+      hmi7Inch: 1600,
+      hmi12Inch: 3400,
+      hmi15Inch: 5500,
+      graceport: 400,
+      desk: 200,
       hmiCover: 600,
      })
 
@@ -159,6 +170,7 @@ const sourceData = () => {
         complete,
         io,
         baseIO,
+        basicBaseCompQty,
         baseCompQty,
         compQty,
         compMax,
@@ -169,8 +181,11 @@ const sourceData = () => {
         flow,
         controlSys,
         accessories,
+        basicHRBase,
+        basicHRCalc,
         completeHWCost,
         completeHWSell,
+        basicHWSell,
         completeHRRate,
         completeHRBase,
         completeHRCalc,

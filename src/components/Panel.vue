@@ -1,13 +1,20 @@
 <template>
   <div class="base">
-    <img label="Backplane" class="panel" :style="{ 
+    <img v-if="complete" label="Backplane" class="panel" :style="{ 
       top: bp.top + 'px', 
       left: bp.left + 'px', 
       height: bp.height + 'px', 
       width: bp.width + 'px' 
       }" alt="Panel" src="@/assets/backplane.png">
+    
+    <img v-if="basic" label="Backplane" class="panel" :style="{ 
+      top: bp.top + 'px', 
+      left: bp.left + 'px', 
+      height: bp.height + 'px', 
+      width: bp.width + 'px' 
+      }" alt="Panel" src="@/assets/backplane_basic.png">
 
-    <div v-if="compQty.relIn > 0">
+    <div v-if="compQty.relIn > 0 && complete">
       <img label="Relay Generator" v-for="n in compQty.relIn" :key="n" class="panel" :style="{ 
         top: relIn.top + n*relIn.height + 'px',
         left: relIn.left + 'px',
@@ -30,7 +37,7 @@
         }" alt="Panel" src="@/assets/bot_end_cap.png">
     </div>
 
-    <div v-if="compQty.relOut > 0">
+    <div v-if="compQty.relOut > 0 && complete">
       <img label="Out Relay Generator" v-for="n in compQty.relOut" :key="n" class="panel" :style="{ 
         top: relOut.top + 'px',
         left: relOut.left + n*relOut.width + 'px',
@@ -83,7 +90,7 @@
         }" alt="End Cap" src="@/assets/bot_end_cap_vert.png">
     </div>
 
-    <div v-if="termBlock.qtySecond > 0">
+    <div v-if="termBlock.qtySecond > 0  && complete">
       <img label="TB Generator" v-for="n in termBlock.qtySecond" :key="n"  class="panel" :style="{ 
         top: tbSecond.top + 'px',
         left: tbFirst.left + n*tbFirst.width + 'px',
@@ -134,7 +141,7 @@
       width: card.singleWidth + 'px' 
       }" alt="End Cap" src="@/assets/Single_Card.png">
     
-    <div v-if="burner.flStrFeedback=='standard'">
+    <div v-if="burner.flStrFeedback=='standard' && complete">
       <img label="Flame Switch Generator" v-for="n in burner.flames" :key="n" class="panel" :style="{ 
           top: flSwitch.top  + 'px',
           left: flSwitch.left + n*flSwitch.width + 'px',
@@ -143,7 +150,7 @@
           }" alt="FlSwitch" src="@/assets/flame_switch.png">
     </div>
 
-    <div v-if="burner.flStrFeedback=='feedback'">
+    <div v-if="burner.flStrFeedback=='feedback' && complete">
       <img label="Flame Switch Generator" v-for="n in burner.flames" :key="n" class="panel" :style="{ 
           top: anaFlSwitch.top  + 'px',
           left: anaFlSwitch.left + n*anaFlSwitch.width + 'px',
@@ -157,11 +164,12 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
 export default {
   name: 'Panel',
   props: ['basic', 'burner', 'complete', 'compQty', 'termBlock'],
-  setup(){
+  setup(props){
     // backplane pixel vars
     const bp = ref({top: 0, left: 0, height: 802, width: 463})
 
@@ -187,6 +195,54 @@ export default {
     const anaFlSwitch = ref({top: 560, left: 140, width: 42, height: 88})
     
     const resizeFactor = ref(1)
+
+    const basicOrComp = (basic, complete, valBasic, valComplete) => {
+          if (basic) {
+            return valBasic
+          } else if (complete) {
+            return valComplete
+          }
+        }
+    
+    bp.value.height = computed(()=>{
+      if (props.basic) {
+        return 463
+      } else if (props.complete) {
+        return 802
+      }
+    })
+
+    tbFirst.value.top = computed(()=>{
+      if (props.basic) {
+        return 28
+      } else if (props.complete) {
+        return 78
+      }
+    })
+
+    tbFirst.value.left = computed(()=>{
+      if (props.basic) {
+        return 20
+      } else if (props.complete) {
+        return 60
+      }
+    })
+    
+    card.value.top = computed(()=>{
+      if (props.basic) {
+        return 119
+      } else if (props.complete) {
+        return 314
+      }
+    })
+
+    card.value.left = computed(()=>{
+      if (props.basic) {
+        return 102
+      } else if (props.complete) {
+        return 228
+      }
+    })
 
     const resize = (original, factor) => {
       return original*factor

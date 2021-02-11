@@ -2,11 +2,11 @@
   
   <div id="grid">
     <div class="panel">
-      <div style="height: 1600px ; top: 0px ; margin: 0px 0px 100px; position: sticky" v-if="complete" >
+      <div :style="{height: panelHeight+'px', top: '0px', margin: '0px 0px 100px', position: 'sticky'}" v-if="complete || basic" >
       <Panel :basic="basic" :complete="complete" :burner="burner" :compQty="compQty" :termBlock="termBlock" />
       </div>
-      <div style="top: 200px" v-if="complete">
-      <Enclosure :complete="complete" :accessories="accessories"/>
+      <div style="top: 0px" v-if="complete || basic">
+      <Enclosure :basic="basic" :complete="complete" :accessories="accessories"/>
       </div>
     </div>
 
@@ -16,13 +16,13 @@
         <div>
           <h2>Burner System Selection</h2>
           <it-switch v-model="basic" label="Basic" />
-          <p>$17,000</p>
+          <p>$24,800</p>
           <it-switch v-model="complete" label="Complete" />
-          <p>$34,000</p>
+          <p>$37,500</p>
           
         </div>
         
-        <div v-if="basic || complete">
+        <div v-if="complete">
           <h2>Burner System Details</h2>
           <h4>Number of Flames</h4>
           <it-number-input v-model="burner.flames" labelTop="Flames" resize-on-write :min="1" :max="2" />
@@ -50,8 +50,8 @@
           <it-switch v-model="airSys.sysFanAux" label="System Air Fan Control" />
           <it-number-input v-model="airSys.airItlkIn" labelTop="Additional Air Interlock Inputs" resize-on-write :min="0" :max="4"/>
           <it-number-input v-model="airSys.airItlkOut" labelTop="Additional Air Interlock Discreet Outputs" resize-on-write :min="0" :max="4"/>
-          <it-number-input v-model="airSys.airAnaIn" labelTop="Additional Air Interlock Analog Inputs" resize-on-write :min="0" :max="4"/>
-          <it-number-input v-model="airSys.airAnaOut" labelTop="Additional Air Interlock Analog Outputs" resize-on-write :min="0" :max="4"/>
+          <it-number-input v-if="complete" v-model="airSys.airAnaIn" labelTop="Additional Air Interlock Analog Inputs" resize-on-write :min="0" :max="4"/>
+          <it-number-input v-if="complete" v-model="airSys.airAnaOut" labelTop="Additional Air Interlock Analog Outputs" resize-on-write :min="0" :max="4"/>
         </div>
 
         <div v-if="complete">
@@ -69,21 +69,26 @@
           <h2>Custom Control Points</h2>
           <it-number-input v-model="controlSys.dIn" labelTop="Additional Control Discreet Inputs" resize-on-write :min="0" :max="8"/>
           <it-number-input v-model="controlSys.dOut" labelTop="Additional Control Discreet Outputs" resize-on-write :min="0" :max="8"/>
-          <it-number-input v-model="controlSys.AnaIn" labelTop="Additional Control Analog Inputs" resize-on-write :min="0" :max="4"/>
-          <it-number-input v-model="controlSys.AnaOut" labelTop="Additional Control Analog Outputs" resize-on-write :min="0" :max="4"/>
+          <it-number-input v-if="complete" v-model="controlSys.AnaIn" labelTop="Additional Control Analog Inputs" resize-on-write :min="0" :max="4"/>
+          <it-number-input v-if="complete" v-model="controlSys.AnaOut" labelTop="Additional Control Analog Outputs" resize-on-write :min="0" :max="4"/>
         </div>
 
         <div v-if="basic || complete">
           <h2>Enclosure Accessories</h2>
           <h4>PanelView Size</h4>
-          <it-toggle
+          <it-toggle v-if="complete"
             style="width: 100%"
             v-model="accessories.hmi"
             :options="['7 inch', '12 inch', '15 inch']"
           />
+          <it-toggle v-if="basic"
+            style="width: 100%"
+            v-model="accessories.hmi"
+            :options="['4 inch', '7 inch']"
+          />
           <it-switch v-model="accessories.hmiCover" label="Environmental HMI Cover" />
           <it-switch v-model="accessories.graceport" label="Graceport Outlet" />
-          <it-switch v-model="accessories.desk" label="Technician's Desk" />          
+          <it-switch v-if="complete" v-model="accessories.desk" label="Technician's Desk" />          
         </div>
         
       </div> 
@@ -141,7 +146,7 @@ import appHooks from './composables/appHooks'
 import componentComps from './composables/componentComputations'
 import costCalcs from './composables/costCalculations'
 import prettyPrint from './composables/prettyPrint'
-import { computed, watchEffect } from 'vue'
+import { computed, watch, watchEffect } from 'vue'
 
 export default {
   
@@ -162,6 +167,7 @@ export default {
         complete,
         io,
         baseIO,
+        basicBaseCompQty,
         baseCompQty,
         compQty,
         compMax,
@@ -172,18 +178,17 @@ export default {
         flow,
         controlSys,
         accessories,
+        basicHRBase,
+        basicHRCalc,
         completeHWCost,
         completeHWSell,
+        basicHWSell,
         completeHRRate,
         completeHRBase,
         completeHRCalc,
         componentCost,
         componentSell,
     } = sourceData()
-    
-    watchEffect(()=> {
-      console.log(compQty.value.flSwitches)
-    })
 
     //             //
     //    Hooks    //
@@ -210,7 +215,25 @@ export default {
       deskSellExtra,
       accessoriesSellExtra,
       totalSell,
-    } = costCalcs(basic, complete, accessories, compQty, baseCompQty, termBlock, burner, flow, completeHWSell, completeHRRate, completeHRBase, completeHRCalc, componentSell)
+    } = costCalcs(
+      basic, 
+      complete, 
+      accessories, 
+      compQty, 
+      basicBaseCompQty,
+      baseCompQty, 
+      termBlock, 
+      burner, 
+      flow,
+      basicHRBase, 
+      completeHWSell, 
+      basicHWSell,
+      basicHRCalc,
+      completeHRRate, 
+      completeHRBase, 
+      completeHRCalc, 
+      componentSell,
+    )
     
     //                    //
     // Format for Display //
@@ -238,11 +261,21 @@ export default {
       accessoriesSellExtra,
       totalSell,
     )
+    const panelHeight = computed(()=>{if(basic.value){return 800}else if(complete.value){return 1600}})
+    termBlock.value.firstLimit = computed(()=>{if(basic.value){return 120}else if(complete.value){return 90}})
+    watch([basic, complete], ()=>{
+      if(basic.value){
+        accessories.value.hmi = '4 inch'
+      }else if (complete.value){
+        accessories.value.hmi = '7 inch'
+      }
+    })
+
 
     return { 
       compQty, compMax, termBlock, burner, airSys, flow, controlSys, 
       accessories, basic, complete, baseSell, extLaborSell, extHWSell,
-      adderSell, totalSell, accessoriesSellExtra,
+      adderSell, totalSell, accessoriesSellExtra, panelHeight, 
       hmiSellExtra, hmiCoverSellExtra, graceportSellExtra, deskSellExtra,
       prettyBaseSell, prettyLaborSell, prettyHWSell, prettyAdderSell, prettyHMISell,
       prettyHMICoverSell, prettyGraceportSell, prettyDeskSell, prettyAccSell, prettyTotalSell,
@@ -262,21 +295,7 @@ export default {
 }
 
 #grid > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  margin: 5px;
-  border: 1px solid #d3dae6;
-  border-radius: 6px;
-  box-sizing: border-box;
-  transition: 0.17s all ease-in-out;
-
-  &:hover {
-    border: 1px solid #fff;
-    box-shadow: 0 0 0 1px rgba(50, 50, 93, 0.05),
-      0 7px 14px 0 rgba(50, 50, 93, 0.1), 0 3px 6px 0 rgba(0, 0, 0, 0.07);
-  }
+  
 }
 
 #grid > div.panel {

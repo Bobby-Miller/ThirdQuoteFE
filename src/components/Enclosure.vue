@@ -1,11 +1,18 @@
 <template>
     <div class="base">
-      <img label="enclosure" class="panel" :style="{ 
+      <img label="enclosure" class="panel" v-if="complete" :style="{ 
         top: encl.top + 'px', 
         left: encl.left + 'px', 
         height: encl.height + 'px', 
         width: encl.width + 'px' 
         }" alt="Panel" src="@/assets/enclosure.png">
+      
+      <img label="enclosure" class="panel" v-if="basic" :style="{ 
+        top: encl.top + 'px', 
+        left: encl.left + 'px', 
+        height: encl.height + 'px', 
+        width: encl.width + 'px' 
+        }" alt="Panel" src="@/assets/enclosure_basic.png">
       
       <img label="hmi_cover"  class="component" v-if="accessories.hmiCover" :style="{ 
         top: hmiCoverLoc.top + 'px',
@@ -53,10 +60,10 @@
 </template>
 
 <script>
-import { ref, watch, watchEffect } from 'vue'
+import { ref, watch, computed } from 'vue'
 export default {
     name: 'Enclosure',
-    props: ['complete', 'accessories'],
+    props: ['basic', 'complete', 'accessories'],
     setup(props){
         const encl = ref({top: 0, left: 0, height: 825, width: 450})
         const hmiTop = 140
@@ -70,6 +77,10 @@ export default {
           height: 216, 
           width: 225
         })
+
+        encl.value.height = computed(()=>{if(props.basic){return 450}else if(props.complete){return 825}})
+
+        graceportLoc.value.top = computed(()=>{if(props.basic){return 370}else if(props.complete){return 400}})
 
         watch(props.accessories, () =>{ 
           if (props.accessories.hmi == '7 inch') {
